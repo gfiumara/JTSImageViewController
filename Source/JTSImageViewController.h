@@ -43,7 +43,7 @@ extern CGFloat const JTSImageViewController_DefaultBackgroundBlurRadius;
 /// JTSImageViewController
 ///--------------------------------------------------------------------------------------------------------------------
 
-@interface JTSImageViewController : UIViewController
+@interface JTSImageViewController : UIViewController <UIDragInteractionDelegate>
 
 @property (strong, nonatomic, readonly) JTSImageInfo *imageInfo;
 

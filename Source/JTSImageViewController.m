@@ -1309,6 +1309,7 @@ typedef struct {
         self.image = image;
         self.imageView.image = image;
         self.progressContainer.alpha = 0;
+	    [self.imageView addInteraction:[[UIDragInteraction alloc] initWithDelegate:self]];
         
         self.imageView.backgroundColor = [self backgroundColorForImageView];
         
@@ -1941,6 +1942,26 @@ typedef struct {
     }
     
     return hint;
+}
+
+- (NSArray<UIDragItem *> *)dragInteraction:(UIDragInteraction *)interaction itemsForBeginningSession:(id<UIDragSession>)session
+{
+	NSItemProvider *imageProvider = [NSItemProvider new];
+	__block NSURL *imageURL = self.imageInfo.imageURL;
+	if (imageURL == nil)
+		return (@[]);
+
+	[imageProvider registerDataRepresentationForTypeIdentifier:(__bridge NSString *)kUTTypeJPEG
+							visibility:NSItemProviderRepresentationVisibilityAll
+						       loadHandler:^NSProgress* _Nullable(void (^ _Nonnull completionHandler)(NSData*  _Nullable, NSError * _Nullable)) {
+							       NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+							       [[session dataTaskWithURL:imageURL completionHandler:^(NSData *imageData, NSURLResponse *response, NSError *error) {
+								       completionHandler(imageData, error);
+							       }] resume];
+							       return (nil);
+						       }];
+
+	return (@[[[UIDragItem alloc] initWithItemProvider:imageProvider]]);
 }
 
 @end
